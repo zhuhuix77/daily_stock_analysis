@@ -289,3 +289,11 @@ CI 通过只能说明自动检查通过，不能替代人工语义收敛，也�
 - 自动 tag 默认不触发，只有 commit title 包含 `#patch`、`#minor`、`#major` 才会触发版本号更新。
 - 手动打 tag 必须使用 annotated tag。
 - 用户可见变更优先通过 PR 合入，并补齐 label 与验证说明。
+
+## Cursor Cloud specific instructions
+
+- 项目 Python 依赖安装在 `/opt/dsa-venv`。`PATH` 上的 `python` 和 `python3` 都是该虚拟环境的包装脚本；`/usr/bin/python3` 没有项目依赖。`scripts/test.sh` 调用的是 `python3`。
+- 镜像报告依赖 `wkhtmltopdf` / `wkhtmltoimage`，环境安装脚本会装上。
+- 本地 API：`WEBUI_AUTO_BUILD=false python main.py --serve-only --host 0.0.0.0 --port 8000`，健康检查是 `http://127.0.0.1:8000/api/health`。环境启动脚本还会拉起 Vite：`http://127.0.0.1:5173`，并把 `/api` 代理到 8000。启动时设置 `WEBUI_AUTO_BUILD=false`，避免后端每次启动再编译前端。
+- 没有 `.env` 时从 `.env.example` 复制。LLM 和通知密钥不是启动 API、Web UI 或离线测试的前提；真正跑分析和推送才需要。
+- 后端离线检查：`./scripts/ci_gate.sh`。Web：`cd apps/dsa-web && npm run lint && npm test && npm run build`。
